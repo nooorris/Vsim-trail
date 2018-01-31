@@ -1,0 +1,208 @@
+######################################################################
+#
+# $Rev: 9720 $ $Date: 2017-03-03 16:08:04 -0700 (Fri, 03 Mar 2017) $
+#
+# Copyright &copy; 2014-2016, Tech-X Corporation, Boulder, CO.
+# All rights reserved.
+#
+######################################################################
+
+<XSim basicSimulation>
+  shortDescription = "Text-setup Simulation"
+  description = "A simulation with basic parameters defined."
+  longDescription = "A simulation with basic parameters defined. No fields or particles."
+#  image = "emPlaneWave1.png"
+  #thumbnail = "emPlaneWave1Tn.png"
+  canChangeDt = true
+  canChangeNdim = true
+  analyzers = []
+</XSim>
+
+##########
+#
+# Exposed variables
+#
+##########
+
+# Number of cells in the x direction
+<XVar NDIM>
+  description = "Number of dimensions for the simulation"
+  min = 1
+  max = 3
+</XVar>
+
+# Time step is this factor times the CFL limiting time step
+<XVar TIMESTEP_FACTOR>
+  description = "Time step is this factor times the CFL limiting time step"
+</XVar>
+
+# Number of cells in the x direction
+<XVar NX>
+  description = "Number of cells in the x direction"
+  min = 10
+</XVar>
+
+# Number of cells in the y direction
+<XVar NY>
+  description = "Number of cells in the y direction"
+  min = 10
+</XVar>
+
+# Number of cells in the z direction
+<XVar NZ>
+  description = "Number of cells in the z direction"
+  min = 10
+</XVar>
+
+# Length of the simulation in the x direction
+<XVar LX>
+  description = "Length of the simulation in the x direction"
+</XVar>
+
+# Length of the simulation in the y direction
+<XVar LY>
+  description = "Length of the simulation in the y direction"
+</XVar>
+
+# Length of the simulation in the z direction
+<XVar LZ>
+  description = "Length of the simulation in the z direction"
+</XVar>
+
+# Coordinate of the start location in the x direction
+<XVar XBGN>
+  description = "Coordinate of the start location in the x direction"
+</XVar>
+
+# Coordinate of the start location in the y direction
+<XVar YBGN>
+  description = "Coordinate of the start location in the y direction"
+</XVar>
+
+# Coordinate of the start location in the z direction
+<XVar ZBGN>
+  description = "Coordinate of the start location in the z direction"
+</XVar>
+
+# Number of time steps to run the simulation
+<XVar NSTEPS>
+  description = "Number of time steps to run the simulation"
+  min = 10
+</XVar>
+
+# Number of timesteps between memory dumps
+<XVar DUMPPERIOD>
+  description = "Number of time steps between memory dumps"
+</XVar>
+
+##########
+#
+# Primary variables (defined in terms of constants)
+#
+##########
+
+# Default dimensionality
+$ NDIM = 3
+# Number of grid cells
+$ NX = 50
+$ NY = 50
+$ NZ = 50
+# Lengths
+$ LX = 2.0e-05
+$ LY = 2.0e-05
+$ LZ = 2.0e-05
+
+$ XBGN = 0.
+$ YBGN = 0.
+$ ZBGN = 0.
+
+$ NSTEPS = 100
+$ DUMPPERIOD = 10
+# Time step is this factor times the CFL limiting time step
+$ TIMESTEP_FACTOR = .995
+
+##########
+#
+# Import values and macros
+#
+##########
+
+$ import mathphys
+$ import verbosity      # Provide verbosity level parameters
+$ import requiredBlocks
+$ import VSim
+$ import yee            # Macro for saveEmField, addCurrentSource, addOpenBoundary
+
+##########
+#
+# Define variables in lines starting with $ for later use
+#
+##########
+
+$ DX = LX/NX
+$ DY = LY/NY
+$ DZ = LZ/NZ
+$ DT = standardTimeStep(1.,TIMESTEP_FACTOR)
+
+##########
+#
+# Local macros
+#
+##########
+
+###################
+#                 #
+# Main input file #
+#                 #
+###################
+
+##########
+#
+# Define the basic simulation parameters
+#
+##########
+
+# The dimension and precision of the simulation
+dimension = NDIM
+floattype = double
+
+# Time step of integration and number of steps
+dt = DT
+nsteps =NSTEPS
+
+# Dump output into an HDF5 file every 5 time steps
+dumpPeriodicity = DUMPPERIOD
+
+##########
+#
+# Define the grid: the physical problem and the number of cells
+#
+##########
+
+<Grid globalGrid>
+  kind = uniCartGrid
+  numCells = [NX NY NZ]
+# All physical values in units
+  lengths = [LX LY LZ]
+  startPositions = [XBGN YBGN ZBGN]
+</Grid>
+
+##########
+#
+# Define the decomposition
+#
+##########
+
+<Decomp decomp>
+  # Decomposition planes cut entire region
+  kind = regular
+  # The periodic directions
+  periodicDirs = []
+</Decomp>
+##########
+#
+# Define the EM field and describe its boundary conditions
+#
+##########
+
+
